@@ -1,9 +1,9 @@
-package hitbtc_test
+package spiral_test
 
 import (
 	"testing"
 
-	hitbtc "github.com/saniales/go-hitbtc"
+	spiral "github.com/saniales/go-spiral"
 	"github.com/stretchr/testify/require"
 )
 
@@ -15,8 +15,8 @@ const (
 )
 
 var (
-	hitBtc              *hitbtc.HitBtc = hitbtc.New(apiKey, apiSecret)
-	defaultErrorMessage string         = "There should be no error"
+	hitBtc              *spiral.Spiral = spiral.New(apiKey, apiSecret)
+	defaultErrorMessage                = "There should be no error"
 )
 
 func TestGetCurrencies(t *testing.T) {

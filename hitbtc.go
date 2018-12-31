@@ -1,5 +1,5 @@
-// Package hitbtc is an implementation of the HitBTC API in Golang.
-package hitbtc
+// Package spiral is an implementation of the HitBTC API in Golang.
+package spiral
 
 import (
 	"encoding/json"
@@ -12,25 +12,25 @@ import (
 )
 
 const (
-	API_BASE = "https://api.hitbtc.com/api/2" // HitBtc API endpoint
+	API_BASE = "https://api.spiral.com/api/2" // Spiral API endpoint
 )
 
 // New returns an instantiated HitBTC struct
-func New(apiKey, apiSecret string) *HitBtc {
+func New(apiKey, apiSecret string) *Spiral {
 	client := NewClient(apiKey, apiSecret)
-	return &HitBtc{client}
+	return &Spiral{client}
 }
 
 // NewWithCustomHttpClient returns an instantiated HitBTC struct with custom http client
-func NewWithCustomHttpClient(apiKey, apiSecret string, httpClient *http.Client) *HitBtc {
+func NewWithCustomHttpClient(apiKey, apiSecret string, httpClient *http.Client) *Spiral {
 	client := NewClientWithCustomHttpConfig(apiKey, apiSecret, httpClient)
-	return &HitBtc{client}
+	return &Spiral{client}
 }
 
 // NewWithCustomTimeout returns an instantiated HitBTC struct with custom timeout
-func NewWithCustomTimeout(apiKey, apiSecret string, timeout time.Duration) *HitBtc {
+func NewWithCustomTimeout(apiKey, apiSecret string, timeout time.Duration) *Spiral {
 	client := NewClientWithCustomTimeout(apiKey, apiSecret, timeout)
-	return &HitBtc{client}
+	return &Spiral{client}
 }
 
 // handleErr gets JSON response from livecoin API en deal with error
@@ -56,18 +56,18 @@ func handleErr(r interface{}) error {
 	return nil
 }
 
-// HitBtc represent a HitBTC client
-type HitBtc struct {
+// Spiral represent a HitBTC client
+type Spiral struct {
 	client *client
 }
 
 // SetDebug sets enable/disable http request/response dump
-func (b *HitBtc) SetDebug(enable bool) {
+func (b *Spiral) SetDebug(enable bool) {
 	b.client.debug = enable
 }
 
-// GetCurrencies is used to get all supported currencies at HitBtc along with other meta data.
-func (b *HitBtc) GetCurrencies() (currencies []Currency, err error) {
+// GetCurrencies is used to get all supported currencies at Spiral along with other meta data.
+func (b *Spiral) GetCurrencies() (currencies []Currency, err error) {
 	r, err := b.client.do("GET", "public/currency", nil, false)
 	if err != nil {
 		return
@@ -83,8 +83,8 @@ func (b *HitBtc) GetCurrencies() (currencies []Currency, err error) {
 	return
 }
 
-// GetSymbols is used to get the open and available trading markets at HitBtc along with other meta data.
-func (b *HitBtc) GetSymbols() (symbols []Symbol, err error) {
+// GetSymbols is used to get the open and available trading markets at Spiral along with other meta data.
+func (b *Spiral) GetSymbols() (symbols []Symbol, err error) {
 	r, err := b.client.do("GET", "public/symbol", nil, false)
 	if err != nil {
 		return
@@ -101,7 +101,7 @@ func (b *HitBtc) GetSymbols() (symbols []Symbol, err error) {
 }
 
 // GetTicker is used to get the current ticker values for a market.
-func (b *HitBtc) GetTicker(market string) (ticker Ticker, err error) {
+func (b *Spiral) GetTicker(market string) (ticker Ticker, err error) {
 	r, err := b.client.do("GET", "public/ticker/"+strings.ToUpper(market), nil, false)
 	if err != nil {
 		return
@@ -118,7 +118,7 @@ func (b *HitBtc) GetTicker(market string) (ticker Ticker, err error) {
 }
 
 // GetOrderbook is used to get the current order book for a market.
-func (b *HitBtc) GetOrderbook(market string) (orderbook Orderbook, err error) {
+func (b *Spiral) GetOrderbook(market string) (orderbook Orderbook, err error) {
 	r, err := b.client.do("GET", "public/orderbook/"+strings.ToUpper(market), nil, false)
 	if err != nil {
 		return
@@ -135,7 +135,7 @@ func (b *HitBtc) GetOrderbook(market string) (orderbook Orderbook, err error) {
 }
 
 // GetAllTicker is used to get the current ticker values for all markets.
-func (b *HitBtc) GetAllTicker() (tickers Tickers, err error) {
+func (b *Spiral) GetAllTicker() (tickers Tickers, err error) {
 	r, err := b.client.do("GET", "public/ticker", nil, false)
 	if err != nil {
 		return
@@ -152,7 +152,7 @@ func (b *HitBtc) GetAllTicker() (tickers Tickers, err error) {
 }
 
 // GetBalances is used to retrieve all balances from your account
-func (b *HitBtc) GetBalances() (balances []Balance, err error) {
+func (b *Spiral) GetBalances() (balances []Balance, err error) {
 	r, err := b.client.do("GET", "trading/balance", nil, true)
 	if err != nil {
 		return
@@ -170,7 +170,7 @@ func (b *HitBtc) GetBalances() (balances []Balance, err error) {
 
 // GetBalance is used to retrieve the balance from your account for a specific currency.
 // currency: a string literal for the currency (ex: LTC)
-func (b *HitBtc) GetBalance(currency string) (balance Balance, err error) {
+func (b *Spiral) GetBalance(currency string) (balance Balance, err error) {
 	balances, err := b.GetBalances()
 	currency = strings.ToUpper(currency)
 
@@ -185,7 +185,7 @@ func (b *HitBtc) GetBalance(currency string) (balance Balance, err error) {
 
 // GetTrades used to retrieve your trade history.
 // market string literal for the market (ie. BTC/LTC). If set to "all", will return for all market
-func (b *HitBtc) GetTrades(currencyPair string) (trades []Trade, err error) {
+func (b *Spiral) GetTrades(currencyPair string) (trades []Trade, err error) {
 	payload := make(map[string]string)
 	if currencyPair != "all" {
 		payload["symbol"] = currencyPair
@@ -206,7 +206,7 @@ func (b *HitBtc) GetTrades(currencyPair string) (trades []Trade, err error) {
 }
 
 // CancelOrder cancels a pending order
-func (b *HitBtc) CancelOrder(currencyPair string) (orders []Order, err error) {
+func (b *Spiral) CancelOrder(currencyPair string) (orders []Order, err error) {
 	payload := make(map[string]string)
 	if currencyPair != "all" {
 		payload["symbol"] = currencyPair
@@ -227,7 +227,7 @@ func (b *HitBtc) CancelOrder(currencyPair string) (orders []Order, err error) {
 }
 
 // GetOrder gets a pending order data.
-func (b *HitBtc) GetOrder(orderId string) (orders []Order, err error) {
+func (b *Spiral) GetOrder(orderId string) (orders []Order, err error) {
 	payload := make(map[string]string)
 	payload["clientOrderId"] = orderId
 	r, err := b.client.do("GET", "history/order", payload, true)
@@ -246,7 +246,7 @@ func (b *HitBtc) GetOrder(orderId string) (orders []Order, err error) {
 }
 
 // GetOrderHistory gets the history of orders for an user.
-func (b *HitBtc) GetOrderHistory() (orders []Order, err error) {
+func (b *Spiral) GetOrderHistory() (orders []Order, err error) {
 	r, err := b.client.do("GET", "history/order", nil, true)
 	if err != nil {
 		return
@@ -263,7 +263,7 @@ func (b *HitBtc) GetOrderHistory() (orders []Order, err error) {
 }
 
 // GetOpenOrders gets the open orders of an user.
-func (b *HitBtc) GetOpenOrders() (orders []Order, err error) {
+func (b *Spiral) GetOpenOrders() (orders []Order, err error) {
 	r, err := b.client.do("GET", "order", nil, true)
 	if err != nil {
 		return
@@ -280,7 +280,7 @@ func (b *HitBtc) GetOpenOrders() (orders []Order, err error) {
 }
 
 // PlaceOrder creates a new order.
-func (b *HitBtc) PlaceOrder(requestOrder Order) (responseOrder Order, err error) {
+func (b *Spiral) PlaceOrder(requestOrder Order) (responseOrder Order, err error) {
 	payload := make(map[string]string)
 
 	payload["symbol"] = requestOrder.Symbol
@@ -307,7 +307,7 @@ func (b *HitBtc) PlaceOrder(requestOrder Order) (responseOrder Order, err error)
 
 // GetTransactions is used to retrieve your withdrawal and deposit history
 // "Start" and "end" are given in UNIX timestamp format in miliseconds and used to specify the date range for the data returned.
-func (b *HitBtc) GetTransactions(start uint64, end uint64, limit uint32) (transactions []Transaction, err error) {
+func (b *Spiral) GetTransactions(start uint64, end uint64, limit uint32) (transactions []Transaction, err error) {
 	payload := make(map[string]string)
 	if start > 0 {
 		payload["from"] = strconv.FormatUint(uint64(start), 10)
@@ -340,7 +340,7 @@ func (b *HitBtc) GetTransactions(start uint64, end uint64, limit uint32) (transa
 }
 
 // Withdraw performs a withdrawal operation.
-func (b *HitBtc) Withdraw(address string, currency string, amount float64) (withdrawID string, err error) {
+func (b *Spiral) Withdraw(address string, currency string, amount float64) (withdrawID string, err error) {
 	type withdrawResponse struct {
 		ID string `json:"id,required"`
 	}
@@ -381,7 +381,7 @@ const (
 )
 
 // TransferBalance performs a balance transfer operation between trading and bank accounts (both directions).
-func (b *HitBtc) TransferBalance(currency string, amount float64, transferType transferType) (transferID string, err error) {
+func (b *Spiral) TransferBalance(currency string, amount float64, transferType transferType) (transferID string, err error) {
 	type transferResponse struct {
 		ID string `json:"id,required"`
 	}

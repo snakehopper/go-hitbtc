@@ -1,11 +1,11 @@
-package hitbtc
+package spiral
 
 import (
 	"encoding/json"
 	"time"
 )
 
-//Ticker represents a Ticker from hitbtc API.
+//Ticker represents a Ticker from spiral API.
 type Ticker struct {
 	Ask         float64   `json:"ask,string"`
 	Bid         float64   `json:"bid,string"`

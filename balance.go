@@ -1,4 +1,4 @@
-package hitbtc
+package spiral
 
 // Balance represents a cryptocurrency balance on the exchange
 type Balance struct {

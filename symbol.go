@@ -1,4 +1,4 @@
-package hitbtc
+package spiral
 
 // Symbol represents data of a Currency Pair on a market.
 type Symbol struct {

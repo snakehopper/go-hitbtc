@@ -1,4 +1,4 @@
-package hitbtc
+package spiral
 
 import (
 	"encoding/json"

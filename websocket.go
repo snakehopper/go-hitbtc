@@ -1,4 +1,4 @@
-package hitbtc
+package spiral
 
 import (
 	"context"
@@ -7,13 +7,13 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/juju/errors"
-	jsonrpc2 "github.com/sourcegraph/jsonrpc2"
+	"github.com/sourcegraph/jsonrpc2"
 	jsonrpc2ws "github.com/sourcegraph/jsonrpc2/websocket"
 )
 
-const wsAPIURL string = "wss://api.hitbtc.com/api/2/ws"
+const wsAPIURL string = "wss://api.spiral.com/api/2/ws"
 
-// responseChannels handles all incoming data from the hitbtc connection.
+// responseChannels handles all incoming data from the spiral connection.
 type responseChannels struct {
 	notifications notificationChannels
 
@@ -24,7 +24,7 @@ type responseChannels struct {
 	ErrorFeed chan error
 }
 
-// notificationChannels contains all the notifications from hitbtc for subscribed feeds.
+// notificationChannels contains all the notifications from spiral for subscribed feeds.
 type notificationChannels struct {
 	TickerFeed    map[string]chan WSNotificationTickerResponse
 	OrderbookFeed map[string]chan WSNotificationOrderbookUpdate
@@ -131,7 +131,7 @@ func NewWSClient() (*WSClient, error) {
 	}, nil
 }
 
-// Close closes the Websocket connected to the hitbtc api.
+// Close closes the Websocket connected to the spiral api.
 func (c *WSClient) Close() {
 	c.conn.Close()
 
@@ -196,7 +196,7 @@ func (c *WSClient) GetCurrencyInfo(symbol string) (*WSGetCurrencyResponse, error
 
 	err := c.conn.Call(context.Background(), "getCurrency", request, &response)
 	if err != nil {
-		return nil, errors.Annotate(err, "Hitbtc GetCurrency")
+		return nil, errors.Annotate(err, "Spiral GetCurrency")
 	}
 	return &response, nil
 }
@@ -225,7 +225,7 @@ func (c *WSClient) GetSymbol(symbol string) (*WSGetSymbolResponse, error) {
 
 	err := c.conn.Call(context.Background(), "getSymbol", request, &response)
 	if err != nil {
-		return nil, errors.Annotate(err, "Hitbtc GetSymbol")
+		return nil, errors.Annotate(err, "Spiral GetSymbol")
 	}
 	return &response, nil
 }
@@ -253,7 +253,7 @@ func (c *WSClient) GetTrades(symbol string) (*WSGetTradesResponse, error) {
 
 	err := c.conn.Call(context.Background(), "getSymbol", request, &response)
 	if err != nil {
-		return nil, errors.Annotate(err, "Hitbtc GetSymbol")
+		return nil, errors.Annotate(err, "Spiral GetSymbol")
 	}
 	return &response, nil
 }
@@ -284,7 +284,7 @@ type WSNotificationTickerResponse struct {
 func (c *WSClient) SubscribeTicker(symbol string) (<-chan WSNotificationTickerResponse, error) {
 	err := c.subscriptionOp("subscribeTicker", symbol)
 	if err != nil {
-		return nil, errors.Annotate(err, "Hitbtc SubscribeTicker")
+		return nil, errors.Annotate(err, "Spiral SubscribeTicker")
 	}
 
 	if c.updates.notifications.TickerFeed[symbol] == nil {
@@ -300,7 +300,7 @@ func (c *WSClient) SubscribeTicker(symbol string) (<-chan WSNotificationTickerRe
 func (c *WSClient) UnsubscribeTicker(symbol string) error {
 	err := c.subscriptionOp("unsubscribeTicker", symbol)
 	if err != nil {
-		return errors.Annotate(err, "Hitbtc UnsubscribeTicker")
+		return errors.Annotate(err, "Spiral UnsubscribeTicker")
 	}
 
 	close(c.updates.notifications.TickerFeed[symbol])
@@ -334,7 +334,7 @@ type WSTrades struct {
 func (c *WSClient) SubscribeTrades(symbol string) (<-chan WSNotificationTradesUpdate, <-chan WSNotificationTradesSnapshot, error) {
 	err := c.subscriptionOp("subscribeTrades", symbol)
 	if err != nil {
-		return nil, nil, errors.Annotate(err, "Hitbtc SubscribeTrades")
+		return nil, nil, errors.Annotate(err, "Spiral SubscribeTrades")
 	}
 
 	if c.updates.notifications.TradesFeed[symbol] == nil {
@@ -353,7 +353,7 @@ func (c *WSClient) SubscribeTrades(symbol string) (<-chan WSNotificationTradesUp
 func (c *WSClient) UnsubscribeTrades(symbol string) error {
 	err := c.subscriptionOp("unsubscribeTrades", symbol)
 	if err != nil {
-		return errors.Annotate(err, "Hitbtc UnsubscribeTrades")
+		return errors.Annotate(err, "Spiral UnsubscribeTrades")
 	}
 
 	close(c.updates.notifications.TradesFeed[symbol])
@@ -390,7 +390,7 @@ type WSNotificationOrderbookUpdate struct {
 func (c *WSClient) SubscribeOrderbook(symbol string) (<-chan WSNotificationOrderbookUpdate, <-chan WSNotificationOrderbookSnapshot, error) {
 	err := c.subscriptionOp("subscribeOrderbook", symbol)
 	if err != nil {
-		return nil, nil, errors.Annotate(err, "Hitbtc SubscribeOrderbook")
+		return nil, nil, errors.Annotate(err, "Spiral SubscribeOrderbook")
 	}
 
 	if c.updates.notifications.OrderbookFeed[symbol] == nil {
@@ -409,7 +409,7 @@ func (c *WSClient) SubscribeOrderbook(symbol string) (<-chan WSNotificationOrder
 func (c *WSClient) UnsubscribeOrderbook(symbol string) error {
 	err := c.subscriptionOp("unsubscribeOrderbook", symbol)
 	if err != nil {
-		return errors.Annotate(err, "Hitbtc UnsubscribeOrderbook")
+		return errors.Annotate(err, "Spiral UnsubscribeOrderbook")
 	}
 
 	close(c.updates.notifications.OrderbookFeed[symbol])
@@ -462,7 +462,7 @@ type WSCandles struct {
 func (c *WSClient) SubscribeCandles(symbol string, timeframe string) (<-chan WSNotificationCandlesUpdate, <-chan WSNotificationCandlesSnapshot, error) {
 	err := c.candlesSubscriptionOp("subscribeCandles", symbol, timeframe)
 	if err != nil {
-		return nil, nil, errors.Annotate(err, "Hitbtc SubscribeCandles")
+		return nil, nil, errors.Annotate(err, "Spiral SubscribeCandles")
 	}
 
 	if c.updates.notifications.CandlesFeed[symbol] == nil {
@@ -482,7 +482,7 @@ func (c *WSClient) SubscribeCandles(symbol string, timeframe string) (<-chan WSN
 func (c *WSClient) UnsubscribeCandles(symbol string, timeframe string) error {
 	err := c.candlesSubscriptionOp("unsubscribeCandles", symbol, timeframe)
 	if err != nil {
-		return errors.Annotate(err, "Hitbtc UnsubscribeCandles")
+		return errors.Annotate(err, "Spiral UnsubscribeCandles")
 	}
 
 	close(c.updates.notifications.CandlesFeed[symbol])

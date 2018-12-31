@@ -1,10 +1,10 @@
-package hitbtc
+package spiral
 
 import (
 	"encoding/json"
 )
 
-// Orderbook represents an orderbook from hitbtc api.
+// Orderbook represents an orderbook from spiral api.
 type Orderbook struct {
 	Ask []OrderBookItem `json:"ask,struct"`
 	Bid []OrderBookItem `json:"bid,struct"`

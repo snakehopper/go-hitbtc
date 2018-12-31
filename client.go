@@ -1,4 +1,4 @@
-package hitbtc
+package spiral
 
 import (
 	"errors"
@@ -20,12 +20,12 @@ type client struct {
 	debug       bool
 }
 
-// NewClient return a new HitBtc HTTP client
+// NewClient return a new Spiral HTTP client
 func NewClient(apiKey, apiSecret string) (c *client) {
 	return &client{apiKey, apiSecret, &http.Client{}, 30 * time.Second, false}
 }
 
-// NewClientWithCustomHttpConfig returns a new HitBtc HTTP client using the predefined http client
+// NewClientWithCustomHttpConfig returns a new Spiral HTTP client using the predefined http client
 func NewClientWithCustomHttpConfig(apiKey, apiSecret string, httpClient *http.Client) (c *client) {
 	timeout := httpClient.Timeout
 	if timeout <= 0 {
@@ -34,7 +34,7 @@ func NewClientWithCustomHttpConfig(apiKey, apiSecret string, httpClient *http.Cl
 	return &client{apiKey, apiSecret, httpClient, timeout, false}
 }
 
-// NewClient returns a new HitBtc HTTP client with custom timeout
+// NewClient returns a new Spiral HTTP client with custom timeout
 func NewClientWithCustomTimeout(apiKey, apiSecret string, timeout time.Duration) (c *client) {
 	return &client{apiKey, apiSecret, &http.Client{}, timeout, false}
 }
@@ -88,11 +88,11 @@ func (c *client) doTimeoutRequest(timer *time.Timer, req *http.Request) (*http.R
 	case r := <-done:
 		return r.resp, r.err
 	case <-timer.C:
-		return nil, errors.New("timeout on reading data from HitBtc API")
+		return nil, errors.New("timeout on reading data from Spiral API")
 	}
 }
 
-// do prepare and process HTTP request to HitBtc API
+// do prepare and process HTTP request to Spiral API
 func (c *client) do(method string, ressource string, payload map[string]string, authNeeded bool) (response []byte, err error) {
 	connectTimer := time.NewTimer(c.httpTimeout)
 

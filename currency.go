@@ -1,4 +1,4 @@
-package hitbtc
+package spiral
 
 // Currency represents currency data.
 type Currency struct {
