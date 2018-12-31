@@ -1,12 +1,14 @@
-go-hitbtc
+go-spiral
 ==========
 
-go-hitbtc is an implementation of the HitBTC API (public and private) in Golang.
+Unofficial Spiral API implementation written on Golang.
 
-This version implement V2 HitBTC API.
+Inspired by ```saniales/go-hitbtc```
+
+This version implement V1 Spiral API.
 
 ## Import
-	import "github.com/bitbandi/go-hitbtc"
+	import "github.com/snakehopper/go-spiral"
 	
 ## Usage
 
@@ -17,7 +19,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bitbandi/go-hitbtc"
+	"github.com/snakehopper/go-spiral"
 )
 
 const (
@@ -26,11 +28,11 @@ const (
 )
 
 func main() {
-	// hitbtc client
-	hitbtc := hitbtc.New(API_KEY, API_SECRET)
+	// spiral client
+	spiral := spiral.New(API_KEY, API_SECRET)
 
 	// Get balances
-	balances, err := hitbtc.GetBalances()
+	balances, err := spiral.GetBalances()
 	fmt.Println(err, balances)
 }
 ~~~
@@ -44,7 +46,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-	"github.com/bitbandi/go-hitbtc"
+	"github.com/snakehopper/go-spiral"
 )
 
 const (
@@ -57,15 +59,15 @@ func main() {
 		Timeout: time.Second * 10,
 	}
 
-	// hitbtc client
-	bc := hitbtc.NewWithCustomHttpClient(conf.hitbtc.ApiKey, conf.hitbtc.ApiSecret, httpClient)
+	// spiral client
+	bc := spiral.NewWithCustomHttpClient(conf.spiral.ApiKey, conf.spiral.ApiSecret, httpClient)
 
 	// Get balances
-	balances, err := hitbtc.GetBalances()
+	balances, err := spiral.GetBalances()
 	fmt.Println(err, balances)
 
 	// Initialize websocket connection
-	client, err := hitbtc.NewWSClient()
+	client, err := spiral.NewWSClient()
 	if err != nil {
 		handleError(err) // do something
 	}
@@ -82,8 +84,8 @@ func main() {
 }
 ~~~
 
-See ["Examples" folder for more... examples](https://github.com/bitbandi/go-hitbtc/blob/master/examples/hitbtc.go)
+See ["Examples" folder for more... examples](https://github.com/snakehopper/go-spiral/blob/master/examples/spiral.go)
 
 # Projects using this library
 
-- Golang Crypto Trading Bot: a framework to create trading bots easily and seamlessly (https://github.com/saniales/golang-crypto-trading-bot)
+- Golang Crypto Trading Bot: a framework to create trading bots easily and seamlessly (https://github.com/snakehopper/golang-crypto-trading-bot)
