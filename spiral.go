@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	API_BASE = "https://api.spiral.com/api/2" // Spiral API endpoint
+	API_BASE = "https://api.spiral.exchange/api/v1" // Spiral API endpoint
 )
 
 // New returns an instantiated HitBTC struct
@@ -33,14 +33,14 @@ func NewWithCustomTimeout(apiKey, apiSecret string, timeout time.Duration) *Spir
 	return &Spiral{client}
 }
 
-// handleErr gets JSON response from livecoin API en deal with error
+// handleErr gets JSON response from spiral API en deal with error
 func handleErr(r interface{}) error {
 	switch v := r.(type) {
 	case map[string]interface{}:
-		error := r.(map[string]interface{})["error"]
+		error := r.(map[string]interface{})["error_code"]
 		if error != nil {
 			switch v := error.(type) {
-			case map[string]interface{}:
+			case int, int8, int32, int64:
 				errorMessage := error.(map[string]interface{})["message"]
 				return errors.New(errorMessage.(string))
 			default:
@@ -56,7 +56,7 @@ func handleErr(r interface{}) error {
 	return nil
 }
 
-// Spiral represent a HitBTC client
+// Spiral represent a Spiral client
 type Spiral struct {
 	client *client
 }
@@ -68,7 +68,7 @@ func (b *Spiral) SetDebug(enable bool) {
 
 // GetCurrencies is used to get all supported currencies at Spiral along with other meta data.
 func (b *Spiral) GetCurrencies() (currencies []Currency, err error) {
-	r, err := b.client.do("GET", "public/currency", nil, false)
+	r, err := b.client.do("GET", "currencies", nil, false)
 	if err != nil {
 		return
 	}

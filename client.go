@@ -1,6 +1,10 @@
 package spiral
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -93,16 +97,16 @@ func (c *client) doTimeoutRequest(timer *time.Timer, req *http.Request) (*http.R
 }
 
 // do prepare and process HTTP request to Spiral API
-func (c *client) do(method string, ressource string, payload map[string]string, authNeeded bool) (response []byte, err error) {
+func (c *client) do(method string, resource string, payload map[string]string, authNeeded bool) (response []byte, err error) {
 	connectTimer := time.NewTimer(c.httpTimeout)
 
 	var rawurl string
-	if strings.HasPrefix(ressource, "http") {
-		rawurl = ressource
+	if strings.HasPrefix(resource, "http") {
+		rawurl = resource
 	} else {
-		rawurl = fmt.Sprintf("%s/%s", API_BASE, ressource)
+		rawurl = fmt.Sprintf("%s/%s", API_BASE, resource)
 	}
-	var formData string
+	var params string
 	if method == "GET" {
 		var URL *url.URL
 		URL, err = url.Parse(rawurl)
@@ -113,17 +117,17 @@ func (c *client) do(method string, ressource string, payload map[string]string, 
 		for key, value := range payload {
 			q.Set(key, value)
 		}
-		formData = q.Encode()
-		URL.RawQuery = formData
+		params = q.Encode()
+		URL.RawQuery = params
 		rawurl = URL.String()
 	} else {
-		formValues := url.Values{}
-		for key, value := range payload {
-			formValues.Set(key, value)
+		bs, err := json.Marshal(payload)
+		if err != nil {
+			return
 		}
-		formData = formValues.Encode()
+		params = string(bs)
 	}
-	req, err := http.NewRequest(method, rawurl, strings.NewReader(formData))
+	req, err := http.NewRequest(method, rawurl, strings.NewReader(params))
 	if err != nil {
 		return
 	}
@@ -135,7 +139,19 @@ func (c *client) do(method string, ressource string, payload map[string]string, 
 			err = errors.New("You need to set API Key and API Secret to call this method")
 			return
 		}
-		req.SetBasicAuth(c.apiKey, c.apiSecret)
+		req.Header.Set("api-key", c.apiKey)
+
+		expired := fmt.Sprint(time.Now().Add(5 * time.Second).Unix())
+		req.Header.Set("api-expires", expired)
+
+		switch method {
+		case "POST":
+			sign := c.signature(method, resource, map[string]string{}, expired, params)
+			req.Header.Set("api-signature", sign)
+		default:
+			sign := c.signature(method, resource, payload, expired, "")
+			req.Header.Set("api-signature", sign)
+		}
 	}
 
 	resp, err := c.doTimeoutRequest(connectTimer, req)
@@ -152,4 +168,27 @@ func (c *client) do(method string, ressource string, payload map[string]string, 
 		return response, errors.New(resp.Status)
 	}
 	return response, err
+}
+
+func (c *client) signature(verb, path string, params map[string]string, expired, body string) string {
+	ul, err := url.Parse(path)
+	if err != nil {
+		return err.Error()
+	}
+	var val = url.Values{}
+	for k, v := range params {
+		val.Set(k, v)
+	}
+	ul.RawQuery = val.Encode()
+
+	txt := fmt.Sprintf("%v%v%v%v", verb, ul.String(), expired, body)
+	return computeHmac256(txt, c.apiSecret)
+}
+
+func computeHmac256(strMessage string, strSecret string) string {
+	key := []byte(strSecret)
+	h := hmac.New(sha256.New, key)
+	h.Write([]byte(strMessage))
+
+	return hex.EncodeToString(h.Sum(nil))
 }
