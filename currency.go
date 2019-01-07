@@ -2,13 +2,18 @@ package spiral
 
 // Currency represents currency data.
 type Currency struct {
-	Id                 string `json:"id"`
-	FullName           string `json:"fullName"`
-	Crypto             bool   `json:"crypto"`
-	PayinEnabled       bool   `json:"payinEnabled"`
-	PayinPaymentId     bool   `json:"payinPaymentId"`
-	PayinConfirmations uint   `json:"payinConfirmations"`
-	PayoutEnabled      bool   `json:"payoutEnabled"`
-	PayoutIsPaymentId  bool   `json:"payoutIsPaymentId"`
-	TransferEnabled    bool   `json:"transferEnabled"`
+	Id                int64   `json:"id"`
+	Code              string  `json:"code"`
+	Name              string  `json:"name"`
+	Precision         int64   `json:"precision"`
+	CanDeposit        bool    `json:"can_deposit"`
+	CanWithdrawal     bool    `json:"can_withdrawal"`
+	MinConfirms       int64   `json:"min_confirms"`
+	WithdrawalFee     float64 `json:"withdrawal_fee,string"`
+	WithdrawMinAmount float64 `json:"withdraw_min_amount,string"`
+}
+
+type CurrencyResponse struct {
+	Data []Currency `json:"data"`
+	errorResponse
 }

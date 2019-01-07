@@ -1,13 +1,20 @@
 package spiral
 
-// Symbol represents data of a Currency Pair on a market.
 type Symbol struct {
-	Id                   string  `json:"id"`
-	BaseCurrency         string  `json:"baseCurrency"`
-	QuoteCurrency        string  `json:"quoteCurrency"`
-	QuantityIncrement    float64 `json:"quantityIncrement,string"`
-	TickSize             float64 `json:"tickSize,string"`
-	TakeLiquidityRate    float64 `json:"takeLiquidityRate,string"`
-	ProvideLiquidityRate float64 `json:"provideLiquidityRate,string"`
-	FeeCurrency          string  `json:"feeCurrency"`
+	Symbol         string  `json:"symbol"`
+	QuoteAssetName string  `json:"quote_asset_name"`
+	BaseAssetUnit  string  `json:"base_asset_unit"`
+	BaseAssetName  string  `json:"base_asset_name"`
+	BaseAsset      string  `json:"base_asset"`
+	TickSize       float64 `json:"tick_size,string"`
+	QuoteAsset     string  `json:"quote_asset"`
+	QuoteAssetUnit string  `json:"quote_asset_unit"`
+	Active         bool    `json:"active"`
+	MinTrade       float64 `json:"min_trade,string"`
+	Status         string  `json:"status"`
+}
+
+type SymbolsResponse struct {
+	Data []Symbol `json:"data"`
+	errorResponse
 }

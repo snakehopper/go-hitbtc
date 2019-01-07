@@ -97,7 +97,7 @@ func (c *client) doTimeoutRequest(timer *time.Timer, req *http.Request) (*http.R
 }
 
 // do prepare and process HTTP request to Spiral API
-func (c *client) do(method string, resource string, payload map[string]string, authNeeded bool) (response []byte, err error) {
+func (c *client) do(method string, resource string, params map[string]string, authNeeded bool) (response []byte, err error) {
 	connectTimer := time.NewTimer(c.httpTimeout)
 
 	var rawurl string
@@ -106,7 +106,7 @@ func (c *client) do(method string, resource string, payload map[string]string, a
 	} else {
 		rawurl = fmt.Sprintf("%s/%s", API_BASE, resource)
 	}
-	var params string
+	var payload string
 	if method == "GET" {
 		var URL *url.URL
 		URL, err = url.Parse(rawurl)
@@ -114,20 +114,20 @@ func (c *client) do(method string, resource string, payload map[string]string, a
 			return
 		}
 		q := URL.Query()
-		for key, value := range payload {
+		for key, value := range params {
 			q.Set(key, value)
 		}
-		params = q.Encode()
-		URL.RawQuery = params
+		payload = q.Encode()
+		URL.RawQuery = payload
 		rawurl = URL.String()
 	} else {
-		bs, err := json.Marshal(payload)
+		bs, err := json.Marshal(params)
 		if err != nil {
-			return
+			return nil, err
 		}
-		params = string(bs)
+		payload = string(bs)
 	}
-	req, err := http.NewRequest(method, rawurl, strings.NewReader(params))
+	req, err := http.NewRequest(method, rawurl, strings.NewReader(payload))
 	if err != nil {
 		return
 	}
@@ -136,7 +136,7 @@ func (c *client) do(method string, resource string, payload map[string]string, a
 	// Auth
 	if authNeeded {
 		if len(c.apiKey) == 0 || len(c.apiSecret) == 0 {
-			err = errors.New("You need to set API Key and API Secret to call this method")
+			err = errors.New("you need to set API Key and API Secret to call this method")
 			return
 		}
 		req.Header.Set("api-key", c.apiKey)
@@ -146,10 +146,10 @@ func (c *client) do(method string, resource string, payload map[string]string, a
 
 		switch method {
 		case "POST":
-			sign := c.signature(method, resource, map[string]string{}, expired, params)
+			sign := c.signature(method, resource, map[string]string{}, expired, payload)
 			req.Header.Set("api-signature", sign)
 		default:
-			sign := c.signature(method, resource, payload, expired, "")
+			sign := c.signature(method, resource, params, expired, "")
 			req.Header.Set("api-signature", sign)
 		}
 	}
